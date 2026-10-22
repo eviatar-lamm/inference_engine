@@ -9,13 +9,13 @@ using std::endl;
 using json = nlohmann::json;
 
 Tensor::Tensor(std::vector<size_t> shape) : shape(shape) {
-            int total_elements = 1;
-            for (auto el : shape) { 
-                total_elements *= el;
-            }
-            data = std::vector<float>(total_elements);
-
-        } 
+    int total_elements = 1;
+    for (auto el : shape) { 
+        total_elements *= el;
+    }
+    data = std::vector<float>(total_elements);
+}
+     
 
 
 // Tensor + Tensor
@@ -169,31 +169,30 @@ Tensor Tensor::operator()(std::vector<size_t> pos) {
 }
 
 Tensor matmul(Tensor& t1, Tensor& t2) {
-    auto t1_shape = t1.shape;
-    auto t2_shape = t2.shape;
-    size_t t1_cols = t1_shape[1];
-    size_t t1_rows = t1_shape[0];
-    size_t t2_cols = t1_shape[1];
-    size_t t2_rows = t1_shape[0];
-
-    if (t1_shape[1] != t2_shape[0]) {
+    if (t1.shape[1] != t2.shape[0]) {
         std::cout << "Tensor shape does not match" << std::endl;
         return Tensor({0,0});
     }
-    size_t rows = t1_shape[0];
-    size_t cols = t1_shape[1];
-    Tensor result({t1_shape[0], t2_shape[1]});
     
+    auto t1_shape = t1.shape;
+    auto t2_shape = t2.shape;
+
+    size_t N = t1_shape[0];
+    size_t M = t2_shape[1];
+    size_t K = t1_shape[1];
+
+    Tensor res({N, M});
     
-    for (size_t i = 0; i < rows; ++i) {
-        for (size_t k = 0; k < cols; ++k) {
-            float a = t1.data[i * t1_cols + k];
-            for (size_t j = 0; j < t2_rows; ++j) {
-                result.data[t2_cols * i + j] += a * t2.data[t2_cols * k + j];
+    for (size_t i = 0; i < N; ++i) {
+        for (size_t k = 0; k < K; ++k) {
+            float a = t1.data[i * K + k];
+            for (size_t j = 0; j < M; ++j) {
+                res.data[M * i + j] += a * t2.data[M * k + j];
             }
         }
     }
-    return result;
+    
+    return res;
     
 }
 
