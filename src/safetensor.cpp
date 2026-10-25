@@ -182,13 +182,32 @@ Tensor matmul(Tensor& t1, Tensor& t2) {
     size_t K = t1_shape[1];
 
     Tensor res({N, M});
-    
-    for (size_t i = 0; i < N; ++i) {
-        for (size_t k = 0; k < K; ++k) {
-            float a = t1.data[i * K + k];
-            for (size_t j = 0; j < M; ++j) {
-                res.data[M * i + j] += a * t2.data[M * k + j];
+    float* a = t1.data.data();
+    float* b = t2.data.data();
+    float* c = res.data.data();
+    const size_t ROW_BLOCK = 4;
+    const size_t COL_BLOCK = 128;
+
+    for (size_t row_block_index = 0; row_block_index < N; row_block_index += ROW_BLOCK) {
+        for (size_t col_block_index = 0; col_block_index < K; col_block_index += COL_BLOCK) {
+            const size_t row_limit = std::min(N, row_block_index + ROW_BLOCK);
+            const size_t width = std::min(COL_BLOCK, K - col_block_index);
+
+            for (size_t k =0; k < K; ++k) {
+                // Loading row of B for update multiple rows in C
+                float* b_row = b + k* M + col_block_index;
+
+                for (size_t i = row_block_index; i < row_limit; ++i) {
+                    float* c_row = c + i*M + col_block_index;
+                    const float av = a[i * K + k];
+
+                    for (size_t j = 0; j < width; ++j) {
+                        c_row[j] += av * b_row[j];
+                    }
+                }
             }
+
+            
         }
     }
     

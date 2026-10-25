@@ -56,6 +56,9 @@ int main () {
         std::chrono::duration<double>(end - start).count();
 
     std::cout << "Time: " << seconds << " s\n";
+    Tensor c({1,2,3,4}, {2,2});
+    Tensor d({1,2,3,4}, {2,2});
+    std::cout << matmul(c,d) << std::endl;
 
 }
 
