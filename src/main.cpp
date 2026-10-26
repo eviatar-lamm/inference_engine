@@ -33,7 +33,7 @@ void print_vector(std::vector<size_t> v) {
 
 int main () {
     const std::string MODEL_PATH = "./models/gpt2/model.safetensors";
-    SafeTensors ten(MODEL_PATH);
+    SafeTensor ten(MODEL_PATH);
     Tensor test =  ten.get_tensor("h.9.mlp.c_proj.weight");
     
     std::cout << "Test tensor shape: ";

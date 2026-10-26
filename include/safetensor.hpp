@@ -15,31 +15,13 @@
 
 
 
-
-class Tensor {
-    public:
-        Tensor(std::vector<float> data, std::vector<size_t> shape) : data(data), shape(shape) {};
-        Tensor(std::vector<size_t> shape);
-        std::vector<float> data;
-        std::vector<size_t> shape;
-        friend std::ostream& operator<<(std::ostream& os, const Tensor& tensor);
-        Tensor operator+(Tensor& other);
-        Tensor operator+(int other);
-        Tensor operator*(int);
-        Tensor operator*(Tensor& other);
-        Tensor operator()(std::vector<size_t>);
-        float& item();
-        float& at(size_t,size_t);
-        void setItem(float item);
-};
- 
-Tensor matmul(Tensor& t1, Tensor& t2);
+#include "tensor.hpp"
 
 
 
-class SafeTensors {
+class SafeTensor {
 public:
-    explicit SafeTensors(const std::string& path);
+    SafeTensor(const std::string& path);
 
     Tensor get_tensor(const std::string& name);
 

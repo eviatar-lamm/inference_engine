@@ -8,69 +8,9 @@ using std::cout;
 using std::endl;
 using json = nlohmann::json;
 
-Tensor::Tensor(std::vector<size_t> shape) : shape(shape) {
-    int total_elements = 1;
-    for (auto el : shape) { 
-        total_elements *= el;
-    }
-    data = std::vector<float>(total_elements);
-}
-     
 
 
-// Tensor + Tensor
-Tensor Tensor::operator+(Tensor& other) {
-    if (data.size() != other.data.size()) {
-        throw std::invalid_argument("Tensor sizes do not match");
-    }
-
-    Tensor result(shape);
-
-    for (size_t i = 0; i < data.size(); ++i) {
-        result.data[i] = data[i] + other.data[i];
-    }
-
-    return result;
-}
-
-// Tensor + scalar
-Tensor Tensor::operator+(int other) {
-    Tensor result(shape);
-
-    for (size_t i = 0; i < data.size(); ++i) {
-        result.data[i] = data[i] + other;
-    }
-
-    return result;
-}
-
-// Tensor * scalar
-Tensor Tensor::operator*(int other) {
-    Tensor result(shape);
-
-    for (size_t i = 0; i < data.size(); ++i) {
-        result.data[i] = data[i] * other;
-    }
-
-    return result;
-}
-
-// Tensor * Tensor (element-wise)
-Tensor Tensor::operator*(Tensor& other) {
-    if (data.size() != other.data.size()) {
-        throw std::invalid_argument("Tensor sizes do not match");
-    }
-
-    Tensor result(shape);
-
-    for (size_t i = 0; i < data.size(); ++i) {
-        result.data[i] = data[i] * other.data[i];
-    }
-
-    return result;
-}
-
-SafeTensors::SafeTensors(const std::string& path) {
+SafeTensor::SafeTensor(const std::string& path) {
     file = std::ifstream(path);
     char* buffer = new char [HEADER_SIZE];
     if (file) {
@@ -108,7 +48,7 @@ std::ostream& operator<<(std::ostream& os, const Tensor& tensor) {
     return os;
 }
 
-Tensor SafeTensors::get_tensor(const std::string& name) {
+Tensor SafeTensor::get_tensor(const std::string& name) {
     std::vector<uint64_t> offsets = header.at(name).at("data_offsets").get<std::vector<uint64_t>>();
     int start = offsets[0];
     int end = offsets[1];
@@ -215,39 +155,5 @@ Tensor matmul(Tensor& t1, Tensor& t2) {
     
 }
 
-float& Tensor::at(size_t i, size_t j) {
-    // if (shape.size() != 2) {
-    //     throw std::runtime_error("Tensor must be size 2");
-    // }
-    // if (i >= shape[0] || j >= shape[1] || i*j < 0 || i * shape[1] + j >= data.size()) {
-    //     std::ostringstream msg;
-    //     msg << "Index " << i << ", " << j << " is out of range of Tensor shape: (" << shape[0] << ", " << shape[1] << ")" ;
-    //     throw std::runtime_error(msg.str());
-    // }
-    if (i* shape[1] + j > data.size()) {
-        throw std::runtime_error("Index out of bounds");
-    }
-    return data[i * shape[1] + j];
-}
 
 
-
-float& Tensor::item() {
-    if (shape.size() != 1) {
-        throw std::runtime_error("Tensor must be size 1");
-    }
-    if (shape[0] != 1) {
-        throw std::runtime_error("Tensor must be size 1");
-    }
-    return data[0];
-}
-
-void Tensor::setItem(float item) {
-    if (shape.size() != 1) {
-        throw std::runtime_error("Tensor must be size 1");
-    }
-    if (shape[0] != 1) {
-        throw std::runtime_error("Tensor must be size 1");
-    }
-    data[0] = item;
-}
