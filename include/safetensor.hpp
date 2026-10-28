@@ -23,7 +23,7 @@ class SafeTensor {
 public:
     SafeTensor(const std::string& path);
 
-    Tensor get_tensor(const std::string& name);
+    auto get_tensor(const std::string& name);
 
 private:
     std::ifstream file;

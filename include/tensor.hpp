@@ -10,6 +10,14 @@ enum class DType {
     I32
 };
 
+inline DType get_dtype(std::string dtype) {
+    if (dtype == "BF16") return DType::BF16;
+    if (dtype == "F16") return DType::F16;
+    if (dtype == "I8") return DType::I8;
+    if (dtype == "I32") return DType::I32;
+    else return DType::F32;
+}
+
 inline size_t dtype_size(DType dtype) {
     switch (dtype) {
         case DType::F32: return 4;
@@ -20,14 +28,18 @@ inline size_t dtype_size(DType dtype) {
         default: return 0;
     }
 }
+
+auto create_tensor(std::vector<size_t>, std::string);
+
 template <typename T>
 class Tensor {
     public:
         Tensor(void* data, std::vector<size_t> shape);
+        Tensor(std::vector<size_t> shape, void* ptr);
         Tensor(std::vector<size_t> shape);
         std::vector<T> data;
         std::vector<size_t> shape;
-        friend std::ostream& operator<<(std::ostream& os, const Tensor& tensor);
+        friend std::ostream& operator<<(std::ostream& os, const Tensor<T>& tensor);
         Tensor<T> operator+(Tensor<T>& other);
         Tensor<T> operator+(int other);
         Tensor<T> operator*(float);

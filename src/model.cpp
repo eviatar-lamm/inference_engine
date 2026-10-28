@@ -9,9 +9,3 @@
 
 
 
-int InferenceModel::load_safetensor(const std::string& path) {
-
-    safetensor = SafeTensor(path);
-
-}
-

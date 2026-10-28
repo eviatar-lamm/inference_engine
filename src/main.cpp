@@ -34,31 +34,6 @@ void print_vector(std::vector<size_t> v) {
 int main () {
     const std::string MODEL_PATH = "./models/gpt2/model.safetensors";
     SafeTensor ten(MODEL_PATH);
-    Tensor test =  ten.get_tensor("h.9.mlp.c_proj.weight");
-    
-    std::cout << "Test tensor shape: ";
-    print_vector(test.shape);
-    std::cout << std::endl;
-
-
-    Tensor a({3072,378});
-    Tensor b({378,3072});
-
-
-
-    auto start = std::chrono::steady_clock::now();
-
-    auto result = matmul(a, b);
-
-    auto end = std::chrono::steady_clock::now();
-
-    double seconds =
-        std::chrono::duration<double>(end - start).count();
-
-    std::cout << "Time: " << seconds << " s\n";
-    Tensor c({1,2,3,4}, {2,2});
-    Tensor d({1,2,3,4}, {2,2});
-    std::cout << matmul(c,d) << std::endl;
 
 }
 

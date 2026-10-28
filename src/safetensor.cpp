@@ -3,7 +3,7 @@
 #include <span>
 #include <string>
 #include "safetensor.hpp"
-
+#include "tensor.hpp"
 using std::cout;
 using std::endl;
 using json = nlohmann::json;
@@ -33,7 +33,8 @@ SafeTensor::SafeTensor(const std::string& path) {
     
 }
 
-std::ostream& operator<<(std::ostream& os, const Tensor& tensor) {
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const Tensor<T>& tensor) {
     os << "Tensor([";
 
     for (size_t i = 0; i < tensor.data.size(); ++i) {
@@ -48,15 +49,16 @@ std::ostream& operator<<(std::ostream& os, const Tensor& tensor) {
     return os;
 }
 
-Tensor SafeTensor::get_tensor(const std::string& name) {
+auto SafeTensor::get_tensor(const std::string& name) {
     std::vector<uint64_t> offsets = header.at(name).at("data_offsets").get<std::vector<uint64_t>>();
     int start = offsets[0];
     int end = offsets[1];
     std::vector<size_t> shape = header.at(name).at("shape").get<std::vector<size_t>>();
+    DType dtype = get_dtype(header.at(name).at("dtype").get<std::string>());
     char* buffer = new char [end - start];
     file.seekg(0, file.beg);
     file.seekg(HEADER_SIZE + json_header_size + start, file.beg);
-    Tensor tensor(shape);
+    auto tensor = create_tensor(shape, "F32");
     size_t num_elements = 1;
 
     for (size_t dim : shape) {
@@ -74,41 +76,8 @@ Tensor SafeTensor::get_tensor(const std::string& name) {
 }
 
 
-Tensor Tensor::operator()(std::vector<size_t> pos) {
-    if (pos.size() > this->shape.size()) {
-        std::cout << "Shape index out of range" << std::endl;
-        throw std::invalid_argument("Invalid shape index, pos is larger then tensor shape");
-    }
 
-    for (int i = 0; i < pos.size(); ++i) {
-        if (pos[i] >= shape[i])  {
-            std::string msg = "Invalid shape index, index at dim " + i;
-            msg += "out of range";
-            throw std::invalid_argument(msg);
-        }
-    }
-    size_t num_elements = data.size();
-    size_t index = 0;
-    for (int i = 0; i < pos.size(); ++i) {
-        index += num_elements / shape[i] * pos[i];
-        num_elements = num_elements /shape[i];
-    }
-    if (pos.size() == shape.size()) {
-        Tensor result({data[index]}, {1});
-        return result;
-
-    } else {    
-        std::span<float> new_data = std::span<float>(data).subspan(index, num_elements);
-        std::span<size_t> new_shape = std::span<size_t>(shape).subspan(pos.size(), shape.size() - pos.size());
-        std::vector<float> new_vec(new_data.size()); 
-        std::vector<size_t> new_shape_vec(new_shape.size());
-        new_vec.assign(new_data.begin(), new_data.end());
-        new_shape_vec.assign(new_shape.begin(), new_shape.end());
-        return Tensor(new_vec, new_shape_vec);
-    }
-}
-
-Tensor matmul(Tensor& t1, Tensor& t2) {
+auto matmul(auto& t1, auto& t2) {
     if (t1.shape[1] != t2.shape[0]) {
         std::cout << "Tensor shape does not match" << std::endl;
         return Tensor({0,0});
