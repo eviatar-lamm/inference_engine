@@ -1,6 +1,10 @@
 #pragma once
 #include <vector>
 #include <iostream>
+#include <variant>
+
+
+size_t count_elements(std::vector<size_t> shape);
 
 enum class DType {
     F32,
@@ -10,6 +14,12 @@ enum class DType {
     I32
 };
 
+using Buffer = std::variant<
+std::vector<float>
+>;
+
+
+size_t count_elements(std::vector<size_t> shape);
 inline DType get_dtype(std::string dtype) {
     if (dtype == "BF16") return DType::BF16;
     if (dtype == "F16") return DType::F16;
@@ -34,12 +44,11 @@ auto create_tensor(std::vector<size_t>, std::string);
 template <typename T>
 class Tensor {
     public:
-        Tensor(void* data, std::vector<size_t> shape);
-        Tensor(std::vector<size_t> shape, void* ptr);
+        Tensor(std::vector<size_t> shape, std::vector<T>);
         Tensor(std::vector<size_t> shape);
         std::vector<T> data;
         std::vector<size_t> shape;
-        friend std::ostream& operator<<(std::ostream& os, const Tensor<T>& tensor);
+        friend std::ostream& operator<<(std::ostream& os, const Tensor<float>& tensor);
         Tensor<T> operator+(Tensor<T>& other);
         Tensor<T> operator+(int other);
         Tensor<T> operator*(float);

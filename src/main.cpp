@@ -5,7 +5,7 @@
 #include <string>
 
 #include "safetensor.hpp"
-
+#include "model.hpp"
 
 using std::vector;
 using std::cout;
@@ -33,7 +33,11 @@ void print_vector(std::vector<size_t> v) {
 
 int main () {
     const std::string MODEL_PATH = "./models/gpt2/model.safetensors";
-    SafeTensor ten(MODEL_PATH);
+    const std::string NAME = "hello";
+    InferenceModel model(NAME);
+    model.from_safetensor(MODEL_PATH);
+
+    model.list_items();
 
 }
 

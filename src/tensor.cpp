@@ -7,7 +7,7 @@ template <typename T>
 Tensor<T>::Tensor(std::vector<size_t> shape) : shape(shape), data(std::vector<T>(count_elements(shape))) {}
 
 template <typename T>
-Tensor<T>::Tensor(std::vector<size_t> shape, void* ptr) : shape(shape) , data(std::vector<T>(ptr, ptr+ count_elements(shape))) {}
+Tensor<T>::Tensor(std::vector<size_t> shape, std::vector<T>) : shape(shape) , data(std::move(data)) {}
 
 size_t count_elements(std::vector<size_t> shape) {
     size_t total = 1;
@@ -15,15 +15,8 @@ size_t count_elements(std::vector<size_t> shape) {
     return total;
 }
 
-auto create_tensor(std::vector<size_t> shape, std::string& dtype) {
-    if (dtype == "F32") return Tensor<float>(shape);
-    return Tensor<float>(shape);
-}
 
-auto create_tensor_from_ptr(std::vector<size_t> shape, void* ptr, std::string& dtype) {
-    if (dtype == "F32") return Tensor<float>(shape, ptr);
-    return Tensor<float>(shape);
-}
+
 
 // Tensor + Tensor
 template <typename T>
@@ -80,3 +73,5 @@ Tensor<T> Tensor<T>::operator*(Tensor<T>& other) {
 
     return result;
 }
+
+template class Tensor<float>;

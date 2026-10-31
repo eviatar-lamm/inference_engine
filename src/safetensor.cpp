@@ -4,6 +4,8 @@
 #include <string>
 #include "safetensor.hpp"
 #include "tensor.hpp"
+
+
 using std::cout;
 using std::endl;
 using json = nlohmann::json;
@@ -49,33 +51,46 @@ std::ostream& operator<<(std::ostream& os, const Tensor<T>& tensor) {
     return os;
 }
 
-auto SafeTensor::get_tensor(const std::string& name) {
+Buffer create_vector_from_dtype(DType dtype, size_t num_elements) {
+    switch (dtype)
+    {
+    case DType::F32: return std::vector<float>(num_elements);
+    }
+    return std::vector<float>(num_elements);
+    
+}
+
+template <typename T>
+std::pair<std::vector<size_t>,std::vector<T>> SafeTensor::get_tensor(const std::string& name) {
     std::vector<uint64_t> offsets = header.at(name).at("data_offsets").get<std::vector<uint64_t>>();
     int start = offsets[0];
     int end = offsets[1];
+
     std::vector<size_t> shape = header.at(name).at("shape").get<std::vector<size_t>>();
     DType dtype = get_dtype(header.at(name).at("dtype").get<std::string>());
+
     char* buffer = new char [end - start];
     file.seekg(0, file.beg);
     file.seekg(HEADER_SIZE + json_header_size + start, file.beg);
-    auto tensor = create_tensor(shape, "F32");
-    size_t num_elements = 1;
+    size_t num_elements = count_elements(shape);
 
-    for (size_t dim : shape) {
-        num_elements *= dim;
-    }
-
-    std::vector<float> data(num_elements);
+    std::vector<T> data(num_elements);
 
     file.read(
     reinterpret_cast<char*>(data.data()),
-    data.size() * sizeof(float)
+    data.size() * sizeof(T)
     );
-    tensor.data = data;
-    return tensor;
+    
+    return std::pair<std::vector<size_t>,std::vector<T>>(shape, data);
 }
 
-
+template std::pair<
+    std::vector<size_t>,
+    std::vector<float>
+>
+SafeTensor::get_tensor<float>(
+    const std::string&
+);
 
 auto matmul(auto& t1, auto& t2) {
     if (t1.shape[1] != t2.shape[0]) {

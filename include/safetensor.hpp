@@ -23,11 +23,13 @@ class SafeTensor {
 public:
     SafeTensor(const std::string& path);
 
-    auto get_tensor(const std::string& name);
+    template<typename T>
+    std::pair<std::vector<size_t>, std::vector<T>> get_tensor(const std::string& name);
 
-private:
-    std::ifstream file;
     nlohmann::json header;
+private:
+    DType check_dtype();
+    std::ifstream file;
     int json_header_size;
     const int HEADER_SIZE = 8;
 };
