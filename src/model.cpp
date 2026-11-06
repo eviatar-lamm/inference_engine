@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
-#include <nlohmann/json.hpp>
+#include <json.hpp>
 
 #include "tensor.hpp"
 #include "safetensor.hpp"
