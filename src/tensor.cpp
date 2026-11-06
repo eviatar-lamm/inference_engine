@@ -1,4 +1,3 @@
-#include <stdfloat>
 #include "tensor.hpp"
 
 
@@ -7,7 +6,7 @@ template <typename T>
 Tensor<T>::Tensor(std::vector<size_t> shape) : shape(shape), data(std::vector<T>(count_elements(shape))) {}
 
 template <typename T>
-Tensor<T>::Tensor(std::vector<size_t> shape, std::vector<T>) : shape(shape) , data(std::move(data)) {}
+Tensor<T>::Tensor(std::vector<size_t> shape, std::vector<T> data) : shape(shape) , data(std::move(data)) {}
 
 size_t count_elements(std::vector<size_t> shape) {
     size_t total = 1;

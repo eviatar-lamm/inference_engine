@@ -18,6 +18,9 @@ SafeTensor::SafeTensor(const std::string& path) {
     if (file) {
         std::cout << "Reading header size..." << std::endl;
         file.read(buffer, HEADER_SIZE);
+    } else {
+        std::cout << "Error reading file, check the PATH specifed: " << path << std::endl;
+        return;
     }
     // translating header information to unsigned 64
     unsigned long long header_un_long; 
@@ -51,14 +54,7 @@ std::ostream& operator<<(std::ostream& os, const Tensor<T>& tensor) {
     return os;
 }
 
-Buffer create_vector_from_dtype(DType dtype, size_t num_elements) {
-    switch (dtype)
-    {
-    case DType::F32: return std::vector<float>(num_elements);
-    }
-    return std::vector<float>(num_elements);
-    
-}
+
 
 template <typename T>
 std::pair<std::vector<size_t>,std::vector<T>> SafeTensor::get_tensor(const std::string& name) {
@@ -95,7 +91,7 @@ SafeTensor::get_tensor<float>(
 auto matmul(auto& t1, auto& t2) {
     if (t1.shape[1] != t2.shape[0]) {
         std::cout << "Tensor shape does not match" << std::endl;
-        return Tensor({0,0});
+        return Tensor<float>({0,0});
     }
     
     auto t1_shape = t1.shape;
@@ -105,7 +101,7 @@ auto matmul(auto& t1, auto& t2) {
     size_t M = t2_shape[1];
     size_t K = t1_shape[1];
 
-    Tensor res({N, M});
+    Tensor<float> res({N, M});
     float* a = t1.data.data();
     float* b = t2.data.data();
     float* c = res.data.data();

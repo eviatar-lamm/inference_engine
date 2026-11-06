@@ -28,7 +28,6 @@ int InferenceModel::from_safetensor(const std::string path) {
         for (auto item : loader.header.items()) {
             if (item.key() == "__metadata__") continue;
             std::pair<std::vector<size_t>, std::vector<float>> tensor_vec = loader.get_tensor<float>(item.key());
-            
             tensor_map.try_emplace(
                 item.key() ,
                 Tensor<float>(
