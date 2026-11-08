@@ -1,16 +1,19 @@
 
-#include <stdexcept>
 #include <span>
 #include <string>
+#include <fstream>
+#include <memory>
+#include <cstddef>
+
+
 #include "safetensor.hpp"
 #include "tensor.hpp"
-
+#include "storage.hpp"
 
 using std::cout;
 using std::endl;
 using json = nlohmann::json;
-
-
+using std::byte;
 
 SafeTensor::SafeTensor(const std::string& path) {
     file = std::ifstream(path);
@@ -80,15 +83,39 @@ std::pair<std::vector<size_t>,std::vector<T>> SafeTensor::get_tensor(const std::
     return std::pair<std::vector<size_t>,std::vector<T>>(shape, data);
 }
 
+Tensor SafeTensor::get_tensor(const std::string& name) {
+    std::vector<uint64_t> offsets = header.at(name).at("data_offsets").get<std::vector<uint64_t>>();
+    int start = offsets[0];
+    int end = offsets[1];
+
+    std::vector<size_t> shape = header.at(name).at("shape").get<std::vector<size_t>>();
+    DType dtype = get_dtype(header.at(name).at("dtype").get<std::string>());
+
+    file.seekg(0, file.beg);
+    file.seekg(HEADER_SIZE + json_header_size + start, file.beg);
+    size_t num_elements = count_elements(shape);
+    size_t num_bytes = num_elements * dtype_size(dtype);
+    
+    auto buffer = std::make_unique<std::byte[]>(num_bytes);
+
+    file.read(
+        reinterpret_cast<char*>(buffer.get()),
+        static_cast<std::streamsize>(num_bytes)
+    );
+    
+}
+
 template std::pair<
     std::vector<size_t>,
     std::vector<float>
 >
+
+
 SafeTensor::get_tensor<float>(
     const std::string&
 );
 
-auto matmul(auto& t1, auto& t2) {
+auto matmul(Tensor<float>& t1, Tensor<float>& t2) {
     if (t1.shape[1] != t2.shape[0]) {
         std::cout << "Tensor shape does not match" << std::endl;
         return Tensor<float>({0,0});

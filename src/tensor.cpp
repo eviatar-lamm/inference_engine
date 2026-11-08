@@ -1,12 +1,21 @@
 #include "tensor.hpp"
+#include "storage.hpp"
 
 
 
-template <typename T>
-Tensor<T>::Tensor(std::vector<size_t> shape) : shape(shape), data(std::vector<T>(count_elements(shape))) {}
+// Tensor::Tensor(std::vector<size_t> shape) : shape(shape), data(std::vector(count_elements(shape))) {}
 
-template <typename T>
-Tensor<T>::Tensor(std::vector<size_t> shape, std::vector<T> data) : shape(shape) , data(std::move(data)) {}
+
+Tensor::Tensor(std::vector<size_t> shape, std::shared_ptr<Storage> storage) : shape(shape) , storage_(std::move(storage)) {
+    for (int i = 1; i < shape.size() - 1; ++i) {
+    size_t stride_i = shape[i];
+
+        for (int j = i + 1; j < shape.size() - 1; ++j) {
+            stride_i *= shape[j];
+        }
+        strides.push_back(stride_i);        
+    }
+}
 
 size_t count_elements(std::vector<size_t> shape) {
     size_t total = 1;
@@ -15,11 +24,22 @@ size_t count_elements(std::vector<size_t> shape) {
 }
 
 
+Tensor Tensor::operator()(std::vector<size_t> index) {
+    
+}
 
+
+template <typename T>
+T& Tensor::item() {
+    switch(dtype) {
+        case(DType::F32):
+            storage_.get()->at()
+    }
+}
 
 // Tensor + Tensor
-template <typename T>
-Tensor<T> Tensor<T>::operator+(Tensor& other) {
+
+Tensor Tensor::operator+(Tensor& other) {
     if (data.size() != other.data.size()) {
         throw std::invalid_argument("Tensor sizes do not match");
     }
@@ -34,9 +54,9 @@ Tensor<T> Tensor<T>::operator+(Tensor& other) {
 }
 
 // Tensor + scalar
-template <typename T>
-Tensor<T> Tensor<T>::operator+(int other) {
-    Tensor<T> result(shape);
+
+Tensor Tensor::operator+(int other) {
+    Tensor result(shape);
 
     for (size_t i = 0; i < data.size(); ++i) {
         result.data[i] = data[i] + other;
@@ -45,10 +65,10 @@ Tensor<T> Tensor<T>::operator+(int other) {
     return result;
 }
 
-// Tensor<T> * scalar
-template <typename T>
-Tensor<T> Tensor<T>::operator*(float other) {
-    Tensor<T> result(shape);
+// Tensor * scalar
+
+Tensor Tensor::operator*(float other) {
+    Tensor result(shape);
 
     for (size_t i = 0; i < data.size(); ++i) {
         result.data[i] = data[i] * other;
@@ -57,14 +77,14 @@ Tensor<T> Tensor<T>::operator*(float other) {
     return result;
 }
 
-// Tensor<T> * Tensor<T> (element-wise)
-template <typename T>
-Tensor<T> Tensor<T>::operator*(Tensor<T>& other) {
+// Tensor * Tensor (element-wise)
+
+Tensor Tensor::operator*(Tensor& other) {
     if (data.size() != other.data.size()) {
-        throw std::invalid_argument("Tensor<T> sizes do not match");
+        throw std::invalid_argument("Tensor sizes do not match");
     }
 
-    Tensor<T> result(shape);
+    Tensor result(shape);
 
     for (size_t i = 0; i < data.size(); ++i) {
         result.data[i] = data[i] * other.data[i];
@@ -73,4 +93,3 @@ Tensor<T> Tensor<T>::operator*(Tensor<T>& other) {
     return result;
 }
 
-template class Tensor<float>;

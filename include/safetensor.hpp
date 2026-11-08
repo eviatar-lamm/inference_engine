@@ -6,7 +6,7 @@
 #include <vector>
 #include <iostream>
 #include <json.hpp>
-
+#include "storage.hpp"
 
 
 
@@ -26,6 +26,7 @@ public:
     template<typename T>
     std::pair<std::vector<size_t>, std::vector<T>> get_tensor(const std::string& name);
 
+    Storage get_tensor(const std::string& name);
     nlohmann::json header;
 private:
     DType check_dtype();

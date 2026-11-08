@@ -41,20 +41,26 @@ inline size_t dtype_size(DType dtype) {
 
 auto create_tensor(std::vector<size_t>, std::string);
 
-template <typename T>
 class Tensor {
     public:
-        Tensor(std::vector<size_t> shape, std::vector<T>);
-        Tensor(std::vector<size_t> shape);
-        std::vector<T> data;
+        std::vector<size_t> strides;
         std::vector<size_t> shape;
-        friend std::ostream& operator<<(std::ostream& os, const Tensor<float>& tensor);
-        Tensor<T> operator+(Tensor<T>& other);
-        Tensor<T> operator+(int other);
-        Tensor<T> operator*(float);
-        Tensor<T> operator*(Tensor<T>& other);
-        Tensor<T> operator()(std::vector<size_t>);
+        DType dtype = DType::F32;
+        Tensor(std::vector<size_t> shape, std::shared_ptr<Storage>);
+        Tensor(std::vector<size_t> shape);
+
+        template <typename T>
         T& item();
-        void setItem(T item);
+        
+        friend std::ostream& operator<<(std::ostream& os, const Tensor& tensor);
+        Tensor operator+(Tensor& other);
+        Tensor operator+(int other);
+        Tensor operator*(float);
+        Tensor operator*(Tensor& other);
+        Tensor operator()(std::vector<size_t>);
+        
+    private:
+        std::shared_ptr<Storage> storage_;
+
 };
  

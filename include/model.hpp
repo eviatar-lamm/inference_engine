@@ -25,8 +25,5 @@ class InferenceModel {
         std::unordered_map<std::string, GenTensor> tensor_map;
         std::string name;
         GenTensor get_layer(const std::string name);
-        void list_items();
-
-
-        
+        void list_items();   
 };
