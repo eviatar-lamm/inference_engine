@@ -1,4 +1,5 @@
 #include <iostream>
+#include <unistd.h>
 
 #include "tensor.hpp"
 #include "storage.hpp"
@@ -58,7 +59,7 @@ Tensor Tensor::operator()(std::vector<size_t> index) {
     else for (size_t i = index.size(); i < shape.size(); ++i) new_shape.push_back(shape[i]);
 
     Tensor new_tensor(new_shape, storage_);
-    new_tensor.offset += get_raw_index(index) + offset;
+    new_tensor.offset += Tensor::get_raw_index(index, *this) + offset;
     return new_tensor;
 }
 
@@ -88,11 +89,11 @@ Tensor Tensor::operator+(Tensor& other) {
             auto other_i = other.begin<float>();
 
             while (i != this->end<float>()) {
+                // std::cout << &operator()({1,1,4}).item<float>() << " " << &*i << std::endl;
                 *res_i = *i + *other_i;
-                std::cout << i << std::endl;
-                res_i += result.iter();
-                i += this->iter();
-                other_i += other.iter();
+                ++res_i;
+                ++i;
+                ++other_i;
             }
             break;
             }
@@ -114,8 +115,8 @@ Tensor Tensor::operator+(int other) {
 
             while (i != this->end<float>()) {
                 *res_i = *i + other;
-                res_i += result.iter();
-                i += this->iter();
+                ++res_i;
+                ++i;
             }
             break;}
         default:
@@ -136,8 +137,8 @@ Tensor Tensor::operator*(float other) {
 
             while (i != this->end<float>()) {
                 *res_i = *i * other;
-                res_i += result.iter();
-                i += this->iter();
+                ++res_i;
+                ++i;
             }
             break;}
         default:
@@ -167,9 +168,9 @@ Tensor Tensor::operator*(Tensor& other) {
 
             while (i != this->end<float>()) {
                 *res_i = *i * *other_i;
-                res_i += result.iter();
-                i += this->iter();
-                other_i += other.iter();
+                ++res_i;
+                ++i;
+                ++other_i;
             } break;
         }
         default:

@@ -42,58 +42,16 @@ class Tensor {
             return storage_.get()->get_raw<T>();
         }
 
-        void index_begin() {
-            for (size_t i = 0; i < index_.size(); ++i) index_[i] = 0;
-        }
-        
-        
-
-        void flatten();
-
-        size_t next() {
-            size_t last = shape.size() - 1;
-            bool overflow = false;
-            while (true) {
-                index_[last]++;
-                if (index_[last] == shape[last]) overflow = true;
-                if (overflow) {
-                    for (int i = last; i > 0; --i) {
-                        if (index_[i] == shape[i]) {
-                            index_[i] = 0;
-                            index_[i - 1]++;
-                        } else break;
-
-                    }
-                    overflow = false; 
-                    if (index_[0] == shape[0]) return 0;
-                }
-                // std::cout << index_[0] << ", " << index_[1] << " ," << index_[2] << std::endl;
-                return get_raw_index(index_, *this);
-            }
-
-
-        }
-
-        std::vector<size_t> index_end() {
-            std::vector<size_t> end;
-            for (auto dim : shape) end.push_back(--dim);
-            return end;
-        }
-
         template <typename T>
         TensorIterator<T> begin() {
-            return TensorIterator<T>(this, std::vector<size_t>(shape.size()));
+            return TensorIterator<T>(*this, std::vector<size_t>(shape.size()));
         }
 
         template <typename T>
         TensorIterator<T> end() {
             std::vector<size_t> last_index(shape.size());
-            for (int i = 0; i < shape.size(); ++i) last_index[i] = --shape[i];
-            return TensorIterator<T>(this, last_index);
-        }
-
-        size_t iter() {
-            return next();      
+            last_index[0] = shape[0];
+            return TensorIterator<T>(*this, last_index);
         }
 
         friend std::ostream& operator<<(std::ostream& os, const Tensor& tensor);
@@ -124,19 +82,23 @@ class TensorIterator {
         TensorIterator(Tensor& tensor, std::vector<size_t> position) : tensor_(tensor), index_(position) {}
 
         TensorIterator& operator++() {
-            index_[0]++;
-            size_t i = tensor_.shape.size();
-            if (index_[0] == tensor_.shape[0]) {
+            size_t last = index_.size() - 1;
+            ++index_[last];
+            size_t i = last;
+            if (index_[last] == tensor_.shape[last]) {
                 while (index_[i] == tensor_.shape[i]) {
-                    if (i == 0) return 0;
-                    index_[i] == 0;
+                    if (i == 0) {
+                        return *this;
+                    }
+                    index_[i] = 0;
                     index_[i - 1]++;
+                    i--;
                 }
             }
             return *this;
         }
         bool operator==(const TensorIterator& other) {
-            return this.tensor_ == other.tensor_ && index_ == other.index_;
+            return (&tensor_ ==  &other.tensor_) && (index_ == other.index_);
         }
 
         bool operator!=(const TensorIterator& other) {
@@ -144,11 +106,11 @@ class TensorIterator {
         }
 
         T& operator*() const {
-            return tensor_.get_raw<T>() + tensor_.offset + Tensor::get_raw_index(index_);
+            return *(tensor_.get_raw<T>() + tensor_.offset + Tensor::get_raw_index(index_, tensor_));
         }
 
+        std::vector<size_t> index_;
     private:
         Tensor& tensor_;
-        std::vector<size_t> index_;
 };
 
