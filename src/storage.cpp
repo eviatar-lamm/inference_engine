@@ -2,19 +2,12 @@
 #include "storage.hpp"
 
 
-
-
-
-Storage::Storage(std::unique_ptr<std::byte[]> data, DType dtype) : data_(std::move(data)) , dtype(dtype) {
+Storage::Storage(std::unique_ptr<std::byte[]> data, size_t size, DType dtype) : 
+    data_(std::move(data)) , size_(size), dtype(dtype) {
 
 }
 
-template <typename T>
-T& Storage::at(size_t index) {
-    return reinterpret_cast<T*>(data_.get())[index];
+Storage::Storage(size_t size, DType dtype) : 
+    size_(size), dtype(dtype) , data_(std::make_unique<std::byte[]>(size * dtype_size(dtype))) {
 }
 
-template <typename T>
-T* Storage::get_raw() {
-    return reinterpret_cast<T*>(data_.get());
-}

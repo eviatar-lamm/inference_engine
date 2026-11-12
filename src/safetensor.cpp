@@ -41,22 +41,6 @@ SafeTensor::SafeTensor(const std::string& path) {
     
 }
 
-template <typename T>
-std::ostream& operator<<(std::ostream& os, const Tensor<T>& tensor) {
-    os << "Tensor([";
-
-    for (size_t i = 0; i < tensor.data.size(); ++i) {
-        os << tensor.data[i];
-
-        if (i + 1 < tensor.data.size()) {
-            os << ", ";
-        }
-    }
-
-    os << "])";
-    return os;
-}
-
 
 
 template <typename T>
@@ -102,6 +86,13 @@ Tensor SafeTensor::get_tensor(const std::string& name) {
         reinterpret_cast<char*>(buffer.get()),
         static_cast<std::streamsize>(num_bytes)
     );
+    auto ptr = std::make_shared<Storage>(
+    std::move(buffer),
+    num_bytes,
+    dtype
+    );
+    return Tensor(shape, std::move(ptr));
+    
     
 }
 
@@ -115,10 +106,10 @@ SafeTensor::get_tensor<float>(
     const std::string&
 );
 
-auto matmul(Tensor<float>& t1, Tensor<float>& t2) {
+auto matmul(Tensor& t1, Tensor& t2) {
     if (t1.shape[1] != t2.shape[0]) {
         std::cout << "Tensor shape does not match" << std::endl;
-        return Tensor<float>({0,0});
+        return Tensor({0,0});
     }
     
     auto t1_shape = t1.shape;
@@ -128,10 +119,10 @@ auto matmul(Tensor<float>& t1, Tensor<float>& t2) {
     size_t M = t2_shape[1];
     size_t K = t1_shape[1];
 
-    Tensor<float> res({N, M});
-    float* a = t1.data.data();
-    float* b = t2.data.data();
-    float* c = res.data.data();
+    Tensor res({N, M});
+    float* a = t1.get_raw<float>();
+    float* b = t2.get_raw<float>();
+    float* c = res.get_raw<float>();
     const size_t ROW_BLOCK = 4;
     const size_t COL_BLOCK = 128;
 

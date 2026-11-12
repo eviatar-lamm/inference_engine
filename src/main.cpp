@@ -32,12 +32,18 @@ void print_vector(std::vector<size_t> v) {
 
 
 int main () {
-    const std::string MODEL_PATH = "./models/gpt2/model.safetensors";
-    const std::string NAME = "hello";
-    InferenceModel model(NAME);
-    model.from_safetensor(MODEL_PATH);
+    // const std::string MODEL_PATH = "./models/gpt2/model.safetensors";
+    // const std::string NAME = "hello";
+    // InferenceModel model(NAME);
+    // model.from_safetensor(MODEL_PATH);
 
-    model.list_items();
+    // model.list_items();
 
+    Tensor a({2,2,5});
+    a({1,1,4}).item<float>() = 1;
+    Tensor res = a + a;
+    
+    std::cout << res({1,1,4}).item<float>() << std::endl;
+    
 }
 
