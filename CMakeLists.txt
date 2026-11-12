@@ -10,6 +10,7 @@ add_executable(inference
     src/safetensor.cpp
     src/tensor.cpp
     src/model.cpp
+    src/storage.cpp
 )
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")

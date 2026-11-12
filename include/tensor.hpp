@@ -1,60 +1,116 @@
 #pragma once
-#include <vector>
-#include <iostream>
-#include <variant>
+
+#include "utils.hpp"
+#include "storage.hpp"
 
 
-size_t count_elements(std::vector<size_t> shape);
-
-enum class DType {
-    F32,
-    F16,
-    BF16,
-    I8,
-    I32
-};
-
-using Buffer = std::variant<
-std::vector<float>
->;
-
-
-size_t count_elements(std::vector<size_t> shape);
-inline DType get_dtype(std::string dtype) {
-    if (dtype == "BF16") return DType::BF16;
-    if (dtype == "F16") return DType::F16;
-    if (dtype == "I8") return DType::I8;
-    if (dtype == "I32") return DType::I32;
-    else return DType::F32;
-}
-
-inline size_t dtype_size(DType dtype) {
-    switch (dtype) {
-        case DType::F32: return 4;
-        case DType::F16:
-        case DType::BF16: return 2;
-        case DType::I8:  return 1;
-        case DType::I32: return 4;
-        default: return 0;
-    }
-}
 
 auto create_tensor(std::vector<size_t>, std::string);
 
+
+class Tensor;
+
 template <typename T>
+class TensorIterator;
+
+
 class Tensor {
     public:
-        Tensor(std::vector<size_t> shape, std::vector<T>);
-        Tensor(std::vector<size_t> shape);
-        std::vector<T> data;
+        std::vector<size_t> strides;
         std::vector<size_t> shape;
-        friend std::ostream& operator<<(std::ostream& os, const Tensor<float>& tensor);
-        Tensor<T> operator+(Tensor<T>& other);
-        Tensor<T> operator+(int other);
-        Tensor<T> operator*(float);
-        Tensor<T> operator*(Tensor<T>& other);
-        Tensor<T> operator()(std::vector<size_t>);
-        T& item();
-        void setItem(T item);
+        DType dtype = DType::F32;
+        size_t offset = 0;
+        
+        Tensor(std::vector<size_t> shape, std::shared_ptr<Storage>);
+        Tensor(std::vector<size_t> shape);
+        
+        template <typename T>
+        T& item() {
+            switch(dtype) {
+                case(DType::F32):
+                    return storage_.get()->at<float>(offset);
+                default:
+                    return storage_.get()->at<float>(0);
+            }
+        }
+
+        template <typename T>
+        T& getItem(std::vector<size_t>);
+
+        template <typename T>
+        T* get_raw() {
+            return storage_.get()->get_raw<T>();
+        }
+
+        template <typename T>
+        TensorIterator<T> begin() {
+            return TensorIterator<T>(*this, std::vector<size_t>(shape.size()));
+        }
+
+        template <typename T>
+        TensorIterator<T> end() {
+            std::vector<size_t> last_index(shape.size());
+            last_index[0] = shape[0];
+            return TensorIterator<T>(*this, last_index);
+        }
+
+        friend std::ostream& operator<<(std::ostream& os, const Tensor& tensor);
+        Tensor operator+(Tensor& other);
+        Tensor operator+(int other);
+        Tensor operator*(float);
+        Tensor operator*(Tensor& other);
+        Tensor operator()(std::vector<size_t>);
+        size_t size();
+
+        
+        static size_t get_raw_index(std::vector<size_t> index, Tensor&);
+    private:
+        std::shared_ptr<Storage> storage_;
+        bool is_contigouse = false;
+        std::vector<size_t> index_ = std::vector<size_t>(shape.size());
+
 };
- 
+
+
+
+std::vector<size_t> calulate_strides(std::vector<size_t> shape);
+
+
+template <typename T>
+class TensorIterator {
+    public:
+        TensorIterator(Tensor& tensor, std::vector<size_t> position) : tensor_(tensor), index_(position) {}
+
+        TensorIterator& operator++() {
+            size_t last = index_.size() - 1;
+            ++index_[last];
+            size_t i = last;
+            if (index_[last] == tensor_.shape[last]) {
+                while (index_[i] == tensor_.shape[i]) {
+                    if (i == 0) {
+                        return *this;
+                    }
+                    index_[i] = 0;
+                    index_[i - 1]++;
+                    i--;
+                }
+            }
+            return *this;
+        }
+        bool operator==(const TensorIterator& other) {
+            return (&tensor_ ==  &other.tensor_) && (index_ == other.index_);
+        }
+
+        bool operator!=(const TensorIterator& other) {
+            return !(*this == other);
+        }
+
+        T& operator*() const {
+            return *(tensor_.get_raw<T>() + tensor_.offset + Tensor::get_raw_index(index_, tensor_));
+        }
+
+        std::vector<size_t> index_;
+    private:
+        Tensor& tensor_;
+};
+

@@ -3,3 +3,4 @@ build*/
 models/
 vtune-results/
 perf*
+.venv/

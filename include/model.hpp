@@ -13,8 +13,7 @@
 
 
 
-using GenTensor = std::variant<
-Tensor<float>>;
+
 
 
 class InferenceModel {
@@ -22,11 +21,8 @@ class InferenceModel {
     public:
         InferenceModel(const std::string name);
         int from_safetensor(const std::string path);
-        std::unordered_map<std::string, GenTensor> tensor_map;
+        std::unordered_map<std::string, Tensor> tensor_map;
         std::string name;
-        GenTensor get_layer(const std::string name);
-        void list_items();
-
-
-        
+        Tensor get_layer(const std::string name);
+        void list_items();   
 };

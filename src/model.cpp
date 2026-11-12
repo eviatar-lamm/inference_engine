@@ -27,14 +27,10 @@ int InferenceModel::from_safetensor(const std::string path) {
     if (check_dtype() == DType::F32) {
         for (auto item : loader.header.items()) {
             if (item.key() == "__metadata__") continue;
-            std::pair<std::vector<size_t>, std::vector<float>> tensor_vec = loader.get_tensor<float>(item.key());
-            
+            Tensor tensor_vec = loader.get_tensor(item.key());
             tensor_map.try_emplace(
                 item.key() ,
-                Tensor<float>(
-        std::move(tensor_vec.first),
-        std::move(tensor_vec.second)
-    )
+                tensor_vec
             );
         }
     }
@@ -48,11 +44,11 @@ void InferenceModel::list_items() {
     }
 }
 
-GenTensor InferenceModel::get_layer(const std::string name) {
+Tensor InferenceModel::get_layer(const std::string name) {
     if (tensor_map.contains(name)) {
     return tensor_map.at("layer.weight");
     } else {
-        return Tensor<float>({});
+        return Tensor({});
     }
 }
 
