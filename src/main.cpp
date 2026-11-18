@@ -30,6 +30,16 @@ void print_vector(std::vector<size_t> v) {
     std::cout << std::endl;
 }
 
+template <typename T>
+void print_arr(T* arr, int size) {
+    for (int i = 0; i < size; ++i) std::cout << *arr++ << " ";
+    std::cout << std::endl;
+}
+
+void print_tensor(Tensor& t) {
+    for (auto i = t.begin<float>(); i != t.end<float>(); ++i) std::cout << *i << " ";
+    std::cout << std::endl;
+}
 
 int main () {
     // const std::string MODEL_PATH = "./models/gpt2/model.safetensors";
@@ -39,11 +49,11 @@ int main () {
 
     // model.list_items();
 
-    Tensor a({2,2,5});
-    a({1,1,4}).item<float>() = 1;
-    Tensor res = a + a;
-    
-    std::cout << res({1,1,4}).item<float>() << std::endl;
-    
+    Tensor a({});
+    a.item<float>() = 10;
+    std::vector<int> b(10);
+    std::cout << std::vector<int>{1}.size();
+    for (auto i = a.begin<float>(); i != a.end<float>(); ++i) std::cout << *i << " ";
+    return 0;
 }
 

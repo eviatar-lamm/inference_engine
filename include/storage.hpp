@@ -1,5 +1,7 @@
 
 #pragma once
+#include <memory>
+
 #include "utils.hpp"
 
 class Storage {
@@ -21,7 +23,7 @@ class Storage {
         }
 
         size_t size() {
-            return size_ / dtype_size(dtype);
+            return size_ ;
         }
 
     private:
