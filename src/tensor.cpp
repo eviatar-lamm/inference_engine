@@ -53,13 +53,17 @@ size_t Tensor::get_raw_index(std::vector<size_t> index, Tensor& tensor) {
 
 
 Tensor Tensor::operator()(std::vector<size_t> index) {
+    // Checking index dims
+    for (int i = 0; i <index.size(); ++i) if (index[i] >= shape[i]) return Tensor({});
+    if (index.size() > shape.size()) return Tensor({});
+    
     // Calculating new Tensor shape
     std::vector<size_t> new_shape;
     if (index.size() == shape.size()) new_shape.push_back(1);
     else for (size_t i = index.size(); i < shape.size(); ++i) new_shape.push_back(shape[i]);
 
     Tensor new_tensor(new_shape, storage_);
-    new_tensor.offset += Tensor::get_raw_index(index, *this) + offset;
+    new_tensor.offset += Tensor::get_raw_index(index, *this);
     return new_tensor;
 }
 
@@ -68,7 +72,7 @@ Tensor Tensor::operator()(std::vector<size_t> index) {
 
 
 size_t Tensor::size() {
-    return storage_.get()->size();
+    return count_elements(shape);
 }
 // Tensor + Tensor
 
@@ -168,6 +172,7 @@ Tensor Tensor::operator*(Tensor& other) {
 
             while (i != this->end<float>()) {
                 *res_i = *i * *other_i;
+
                 ++res_i;
                 ++i;
                 ++other_i;
@@ -179,6 +184,36 @@ Tensor Tensor::operator*(Tensor& other) {
     }
 
     return result;
+}
+
+
+
+
+Tensor Tensor::slice(size_t dim, Slice slice) {
+    // Checking dimentions
+    if (dim >= shape.size()) {
+        std::cout << "Invalid dim " << dim << " out of bounds " << shape.size();
+        return *this;
+    }
+    
+    // Calculating tensor offset
+    std::vector<size_t> res_shape;
+
+    int start = 0;
+    int end = shape[dim];
+    
+    if (slice.start.has_value()) start = slice.start.value();
+    if (slice.stop.has_value()) end = slice.stop.value();
+    
+    // Constructing the output tensor shape
+    res_shape = shape;
+    res_shape[dim] = (end - start + 1)/slice.step;
+    
+    Tensor res(res_shape, storage_);
+    res.strides = strides;
+    res.strides[dim] *= slice.step;
+    
+    return res;
 }
 
 

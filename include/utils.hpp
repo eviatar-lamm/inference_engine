@@ -1,7 +1,16 @@
 #pragma once
 
 #include <vector>
+#include <optional>
 size_t count_elements(std::vector<size_t> shape);
+
+struct Slice {
+    std::optional<int64_t> start;
+    std::optional<int64_t> stop;
+    int64_t step = 1;
+};
+
+
 
 enum class DType {
     F32,
