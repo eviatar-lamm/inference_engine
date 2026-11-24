@@ -25,4 +25,5 @@ class InferenceModel {
         std::string name;
         Tensor get_layer(const std::string name);
         void list_items();   
+        std::string predict_next(const std::string&);
 };

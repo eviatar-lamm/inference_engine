@@ -6,6 +6,7 @@
 
 #include "safetensor.hpp"
 #include "model.hpp"
+#include "tokenizer.hpp"
 
 using std::vector;
 using std::cout;
@@ -41,19 +42,25 @@ void print_tensor(Tensor& t) {
     std::cout << std::endl;
 }
 
+
 int main () {
-    // const std::string MODEL_PATH = "./models/gpt2/model.safetensors";
+    const std::string MODEL_PATH = "./models/gpt2/model.safetensors";
+    const std::string TOKENSIZER_PATH = "./models/gpt2/";
+
     // const std::string NAME = "hello";
     // InferenceModel model(NAME);
     // model.from_safetensor(MODEL_PATH);
 
     // model.list_items();
+    
+    Tokenizer t(TOKENSIZER_PATH);
+    // t.bytes_to_unicode();
+    // std::cout << ((size_t) *std::string("!").c_str() + 93 == (size_t) *std::string("~").c_str()) << "\n";
+    std::string s = "Hello, what is your name?";
+    std::vector<int> res = t.encode(s);
+    for (auto t : res) std::cout << t << ", ";
+    std::cout  << "\n";
 
-    Tensor a({});
-    a.item<float>() = 10;
-    std::vector<int> b(10);
-    std::cout << std::vector<int>{1}.size();
-    for (auto i = a.begin<float>(); i != a.end<float>(); ++i) std::cout << *i << " ";
     return 0;
 }
 

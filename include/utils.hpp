@@ -2,6 +2,14 @@
 
 #include <vector>
 #include <optional>
+#include <map>
+#include <ostream> 
+#include <fstream>
+#include <regex>
+#include <string>
+#include <iostream>
+#include "json.hpp"
+
 size_t count_elements(std::vector<size_t> shape);
 
 struct Slice {
@@ -44,3 +52,6 @@ inline size_t dtype_size(DType dtype) {
         default: return 0;
     }
 }
+
+
+

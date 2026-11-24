@@ -35,13 +35,19 @@ int InferenceModel::from_safetensor(const std::string path) {
         }
     }
     
-    return 1;
+    return 0;
 
 }
 void InferenceModel::list_items() {
     for (const auto& [key, val] : tensor_map) {
         std::cout << key << std::endl;
     }
+}
+
+
+
+std::string predict_next(std::string& query) {
+    return "";
 }
 
 Tensor InferenceModel::get_layer(const std::string name) {
