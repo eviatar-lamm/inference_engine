@@ -11,6 +11,7 @@ add_executable(inference
     src/tensor.cpp
     src/model.cpp
     src/storage.cpp
+    src/tokenizer.cpp
 )
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
@@ -36,6 +37,12 @@ target_include_directories(inference PRIVATE
 
 include(CTest)
 if(BUILD_TESTING)
+    add_executable(tokenizer_tests tests/tokenizer_tests.cpp src/tokenizer.cpp)
+    target_include_directories(tokenizer_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+    add_test(NAME tokenizer.english_reference COMMAND tokenizer_tests
+        ${CMAKE_CURRENT_SOURCE_DIR}/models/gpt2
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/tokenizer_reference.json)
+
     add_executable(tensor_tests tests/tensor_tests.cpp src/tensor.cpp src/storage.cpp)
     target_include_directories(tensor_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 

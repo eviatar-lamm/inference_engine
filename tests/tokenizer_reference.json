@@ -1,0 +1,553 @@
+{
+  "reference": {
+    "source": "https://raw.githubusercontent.com/openai/gpt-2/9b63575ef42771a015060c964af2c3da4cf7c8ab/src/encoder.py",
+    "encoder_sha256": "84caddd892377b74de8b61f1fdf2437de9dc025c2f3bc73a981edcb0605e4f9a",
+    "vocab_sha256": "196139668be63f3b5d6574427317ae82f612a97c5d1cdaf36ed2256dbf636783",
+    "merges_sha256": "1ce1664773c50f3e0cc8842619a93edc4624525b728b188a9e0be33b7726adc5"
+  },
+  "cases": [
+    {
+      "name": "empty",
+      "text": "",
+      "ids": []
+    },
+    {
+      "name": "single_letter",
+      "text": "a",
+      "ids": [
+        64
+      ]
+    },
+    {
+      "name": "single_punctuation",
+      "text": "!",
+      "ids": [
+        0
+      ]
+    },
+    {
+      "name": "single_digit",
+      "text": "7",
+      "ids": [
+        22
+      ]
+    },
+    {
+      "name": "single_space",
+      "text": " ",
+      "ids": [
+        220
+      ]
+    },
+    {
+      "name": "hello_world",
+      "text": "Hello, world!",
+      "ids": [
+        15496,
+        11,
+        995,
+        0
+      ]
+    },
+    {
+      "name": "question",
+      "text": "Hello, what is your name?",
+      "ids": [
+        15496,
+        11,
+        644,
+        318,
+        534,
+        1438,
+        30
+      ]
+    },
+    {
+      "name": "english_sentence",
+      "text": "The quick brown fox jumps over the lazy dog.",
+      "ids": [
+        464,
+        2068,
+        7586,
+        21831,
+        18045,
+        625,
+        262,
+        16931,
+        3290,
+        13
+      ]
+    },
+    {
+      "name": "leading_space",
+      "text": " Hello",
+      "ids": [
+        18435
+      ]
+    },
+    {
+      "name": "multiple_leading_spaces",
+      "text": "   Hello",
+      "ids": [
+        220,
+        220,
+        18435
+      ]
+    },
+    {
+      "name": "trailing_space",
+      "text": "Hello ",
+      "ids": [
+        15496,
+        220
+      ]
+    },
+    {
+      "name": "multiple_trailing_spaces",
+      "text": "Hello   ",
+      "ids": [
+        15496,
+        220,
+        220,
+        220
+      ]
+    },
+    {
+      "name": "multiple_internal_spaces",
+      "text": "Hello   world",
+      "ids": [
+        15496,
+        220,
+        220,
+        995
+      ]
+    },
+    {
+      "name": "only_spaces",
+      "text": "     ",
+      "ids": [
+        220,
+        220,
+        220,
+        220,
+        220
+      ]
+    },
+    {
+      "name": "newline",
+      "text": "Hello\nworld",
+      "ids": [
+        15496,
+        198,
+        6894
+      ]
+    },
+    {
+      "name": "blank_line",
+      "text": "First line.\n\nSecond line.",
+      "ids": [
+        5962,
+        1627,
+        13,
+        198,
+        198,
+        12211,
+        1627,
+        13
+      ]
+    },
+    {
+      "name": "tab",
+      "text": "Hello\tworld",
+      "ids": [
+        15496,
+        197,
+        6894
+      ]
+    },
+    {
+      "name": "crlf",
+      "text": "Hello\r\nworld\r\n",
+      "ids": [
+        15496,
+        201,
+        198,
+        6894,
+        201,
+        198
+      ]
+    },
+    {
+      "name": "mixed_whitespace",
+      "text": " \t\nHello \t world\n ",
+      "ids": [
+        220,
+        197,
+        198,
+        15496,
+        220,
+        197,
+        995,
+        198,
+        220
+      ]
+    },
+    {
+      "name": "only_whitespace",
+      "text": "\t\r\n  \n",
+      "ids": [
+        197,
+        201,
+        198,
+        220,
+        220,
+        198
+      ]
+    },
+    {
+      "name": "contractions",
+      "text": "I'm you're he's we've they'll I'd can't don't won't.",
+      "ids": [
+        40,
+        1101,
+        345,
+        821,
+        339,
+        338,
+        356,
+        1053,
+        484,
+        1183,
+        314,
+        1549,
+        460,
+        470,
+        836,
+        470,
+        1839,
+        470,
+        13
+      ]
+    },
+    {
+      "name": "uppercase_contractions",
+      "text": "I'M YOU'RE HE'S WE'VE THEY'LL I'D CAN'T.",
+      "ids": [
+        40,
+        6,
+        44,
+        7013,
+        6,
+        2200,
+        11179,
+        6,
+        50,
+        12887,
+        6,
+        6089,
+        33302,
+        6,
+        3069,
+        314,
+        6,
+        35,
+        15628,
+        6,
+        51,
+        13
+      ]
+    },
+    {
+      "name": "possessives",
+      "text": "John's book and the dogs' toys.",
+      "ids": [
+        7554,
+        338,
+        1492,
+        290,
+        262,
+        6844,
+        6,
+        14958,
+        13
+      ]
+    },
+    {
+      "name": "quotes",
+      "text": "\"Hello,\" she said. 'Goodbye!'",
+      "ids": [
+        1,
+        15496,
+        553,
+        673,
+        531,
+        13,
+        705,
+        10248,
+        16390,
+        13679
+      ]
+    },
+    {
+      "name": "punctuation_runs",
+      "text": "Wait... what?! (Yes); [no] {maybe}: -- / \\",
+      "ids": [
+        21321,
+        986,
+        644,
+        12248,
+        357,
+        5297,
+        1776,
+        685,
+        3919,
+        60,
+        1391,
+        25991,
+        38362,
+        1377,
+        1220,
+        3467
+      ]
+    },
+    {
+      "name": "numbers",
+      "text": "0 1 12 123 1234567890 3.14159 -42 1,000 50%",
+      "ids": [
+        15,
+        352,
+        1105,
+        17031,
+        17031,
+        2231,
+        30924,
+        3829,
+        513,
+        13,
+        1415,
+        19707,
+        532,
+        3682,
+        352,
+        11,
+        830,
+        2026,
+        4
+      ]
+    },
+    {
+      "name": "letters_and_digits",
+      "text": "GPT2 abc123 123abc B2B v1.2.3",
+      "ids": [
+        38,
+        11571,
+        17,
+        450,
+        66,
+        10163,
+        17031,
+        39305,
+        347,
+        17,
+        33,
+        410,
+        16,
+        13,
+        17,
+        13,
+        18
+      ]
+    },
+    {
+      "name": "underscores",
+      "text": "snake_case foo_bar __init__ _hello hello_",
+      "ids": [
+        16184,
+        539,
+        62,
+        7442,
+        22944,
+        62,
+        5657,
+        11593,
+        15003,
+        834,
+        4808,
+        31373,
+        23748,
+        62
+      ]
+    },
+    {
+      "name": "case_sensitive",
+      "text": "hello Hello HELLO world World WORLD",
+      "ids": [
+        31373,
+        18435,
+        47899,
+        46,
+        995,
+        2159,
+        29564
+      ]
+    },
+    {
+      "name": "repeated_letters",
+      "text": "aaaaaaaaaaaa bbbbbbbbbbbb zzzzzzzz",
+      "ids": [
+        24794,
+        24794,
+        24794,
+        275,
+        11848,
+        11848,
+        11848,
+        11848,
+        11848,
+        65,
+        1976,
+        3019,
+        3019,
+        3019,
+        89
+      ]
+    },
+    {
+      "name": "repeated_pairs",
+      "text": "abababababab banana Mississippi bookkeeper",
+      "ids": [
+        397,
+        397,
+        397,
+        397,
+        397,
+        397,
+        25996,
+        13797,
+        1492,
+        13884
+      ]
+    },
+    {
+      "name": "uncommon_word",
+      "text": "antidisestablishmentarianism supercalifragilisticexpialidocious",
+      "ids": [
+        415,
+        29207,
+        44390,
+        3699,
+        1042,
+        2208,
+        9948,
+        361,
+        22562,
+        346,
+        396,
+        501,
+        42372,
+        498,
+        312,
+        32346
+      ]
+    },
+    {
+      "name": "url_and_email",
+      "text": "Visit https://example.com/path?q=hello_world&n=42 or email test@example.com.",
+      "ids": [
+        31141,
+        3740,
+        1378,
+        20688,
+        13,
+        785,
+        14,
+        6978,
+        30,
+        80,
+        28,
+        31373,
+        62,
+        6894,
+        5,
+        77,
+        28,
+        3682,
+        393,
+        3053,
+        1332,
+        31,
+        20688,
+        13,
+        785,
+        13
+      ]
+    },
+    {
+      "name": "ascii_controls",
+      "text": "Hello\u0000world\u000bnext\fpage\u007fend",
+      "ids": [
+        15496,
+        188,
+        6894,
+        199,
+        19545,
+        200,
+        7700,
+        221,
+        437
+      ]
+    },
+    {
+      "name": "paragraph",
+      "text": "Once upon a time, a curious programmer built a language model. It wasn't easy: there were 12 tests, 3 bugs, and plenty of coffee.\n\n\"Let's try again,\" she said, and pressed Enter.",
+      "ids": [
+        7454,
+        2402,
+        257,
+        640,
+        11,
+        257,
+        11040,
+        24292,
+        3170,
+        257,
+        3303,
+        2746,
+        13,
+        632,
+        2492,
+        470,
+        2562,
+        25,
+        612,
+        547,
+        1105,
+        5254,
+        11,
+        513,
+        11316,
+        11,
+        290,
+        6088,
+        286,
+        6891,
+        13,
+        198,
+        198,
+        1,
+        5756,
+        338,
+        1949,
+        757,
+        553,
+        673,
+        531,
+        11,
+        290,
+        12070,
+        6062,
+        13
+      ]
+    }
+  ]
+}

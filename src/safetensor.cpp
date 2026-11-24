@@ -41,40 +41,16 @@ SafeTensor::SafeTensor(const std::string& path) {
     
 }
 
-
-
-template <typename T>
-std::pair<std::vector<size_t>,std::vector<T>> SafeTensor::get_tensor(const std::string& name) {
-    std::vector<uint64_t> offsets = header.at(name).at("data_offsets").get<std::vector<uint64_t>>();
-    int start = offsets[0];
-    int end = offsets[1];
-
-    std::vector<size_t> shape = header.at(name).at("shape").get<std::vector<size_t>>();
-    DType dtype = get_dtype(header.at(name).at("dtype").get<std::string>());
-
-    char* buffer = new char [end - start];
-    file.seekg(0, file.beg);
-    file.seekg(HEADER_SIZE + json_header_size + start, file.beg);
-    size_t num_elements = count_elements(shape);
-
-    std::vector<T> data(num_elements);
-
-    file.read(
-    reinterpret_cast<char*>(data.data()),
-    data.size() * sizeof(T)
-    );
-    
-    return std::pair<std::vector<size_t>,std::vector<T>>(shape, data);
-}
-
+// Returns Tensor from safetensor file by name
 Tensor SafeTensor::get_tensor(const std::string& name) {
     std::vector<uint64_t> offsets = header.at(name).at("data_offsets").get<std::vector<uint64_t>>();
     int start = offsets[0];
-    int end = offsets[1];
 
+    // Getting Tensor shape
     std::vector<size_t> shape = header.at(name).at("shape").get<std::vector<size_t>>();
     DType dtype = get_dtype(header.at(name).at("dtype").get<std::string>());
 
+    // Getting actual Tensor data array
     file.seekg(0, file.beg);
     file.seekg(HEADER_SIZE + json_header_size + start, file.beg);
     size_t num_elements = count_elements(shape);
@@ -96,15 +72,6 @@ Tensor SafeTensor::get_tensor(const std::string& name) {
     
 }
 
-template std::pair<
-    std::vector<size_t>,
-    std::vector<float>
->
-
-
-SafeTensor::get_tensor<float>(
-    const std::string&
-);
 
 auto matmul(Tensor& t1, Tensor& t2) {
     if (t1.shape[1] != t2.shape[0]) {
