@@ -66,6 +66,7 @@ class Tensor {
         Tensor operator*(Tensor& other);
         Tensor operator()(std::vector<size_t>);
         size_t size();
+        Tensor& operator=(Tensor& );
 
         template <typename... Args>
             requires (std::same_as<Args, Slice> && ...)
