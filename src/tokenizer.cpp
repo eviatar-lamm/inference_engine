@@ -6,12 +6,25 @@
 using json = nlohmann::json;
 
 
+std::string Tokenizer::decode(const std::vector<int>& vec) const {
+    return "";
+};
+
+
+int Tokenizer::get_eos_id(std::string path) {
+    std::ifstream file(path);
+    std::stringstream buffer;
+
+    buffer << file.rdbuf();
+    nlohmann::json config = json::parse(buffer.str());
+    return config.at("eos_token_id").get<int>();
+}
+
 void Tokenizer::load_vocab(const std::string& path) {
     std::ifstream file(path);
     std::stringstream buffer;
 
     buffer << file.rdbuf();
-    std::cout << buffer.str().size() << "\n";
     nlohmann::json vocab = json::parse(buffer.str());
     
     for (auto pair : vocab.items()) vocab_map.try_emplace(pair.key(), pair.value());
@@ -35,7 +48,7 @@ void Tokenizer::load_merge(const std::string& path) {
     }
 }
 
-Tokenizer::Tokenizer(const std::string& path) {
+Tokenizer::Tokenizer(const std::string& path) : EOS(get_eos_id(path)){
     const std::string MERGE_PATH = path + "/merges.txt";
     const std::string VOCAB_PATH = path + "/vocab.json";
     load_merge(MERGE_PATH);

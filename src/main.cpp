@@ -6,6 +6,7 @@
 
 #include "safetensor.hpp"
 #include "model.hpp"
+
 #include "tokenizer.hpp"
 
 using std::vector;
@@ -53,14 +54,12 @@ int main () {
 
     // model.list_items();
     
-    Tokenizer t(TOKENSIZER_PATH);
-    // t.bytes_to_unicode();
-    // std::cout << ((size_t) *std::string("!").c_str() + 93 == (size_t) *std::string("~").c_str()) << "\n";
-    std::string s = "Hello, what is your name?";
-    std::vector<int> res = t.encode(s);
-    for (auto t : res) std::cout << t << ", ";
-    std::cout  << "\n";
+    Tensor t({2,2});
+    Tensor d({1});
+    d.item<float>() = 1;
+    t({0,0}) = d;
 
+    std::cout << t({0,0}).item<float>() << "\n";
     return 0;
 }
 

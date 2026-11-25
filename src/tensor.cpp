@@ -52,6 +52,32 @@ size_t Tensor::get_raw_index(std::vector<size_t> index, Tensor& tensor) {
 
 
 
+Tensor& Tensor::operator=(Tensor& other) {
+    if (other.shape != shape) {
+        std::cerr << "Trying to assign tensors with incompatible shapes: (";
+        for (auto i : shape) std::cout << i << ", ";
+        std::cout << ") and (";
+        for (auto i : other.shape) std::cout << i << ", ";
+        std::cout << ")" << std::endl; 
+        return *this;
+    }
+    switch (dtype) {
+        default:
+            auto current_itr = begin<float>();
+            auto other_itr = other.begin<float>();
+            while (current_itr != end<float>()) {
+                *current_itr = *other_itr;
+                ++current_itr;
+                ++other_itr;
+            }
+            break;
+        
+    }
+    return *this;
+
+
+}
+
 Tensor Tensor::operator()(std::vector<size_t> index) {
     // Checking index dims
     for (int i = 0; i <index.size(); ++i) if (index[i] >= shape[i]) return Tensor({});
